@@ -28,7 +28,7 @@ class SendEmailForm(forms.Form):
         self.helper.label_class = 'col-md-3'
         self.helper.field_class = 'col-md-7'
 
-        self.fields['email_list'].choices = [('arthur0135@gmail.com', 'arthur0135@gmail.com')]#get_email_list_from_excel()
+        self.fields['email_list'].choices = get_email_list_from_excel()
         self.fields['file_list'].choices = get_split_pdf_list()
 
 def send_email(request):
