@@ -6,4 +6,5 @@
 3. Run `python manage.py runserver` on project folder.
 4. Check 'http://127.0.0.1:8000/' on your browser.
 
-**Please make sure you have `mail_list.xlsm` in project folder**
+**Please make sure you have `mail_list.xlsm` in project folder**  
+**Need add your gmail account Info in settings in order to send emails**
