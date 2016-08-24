@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Upload PDF{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px;">
+
+    <form method="POST" action="." enctype="multipart/form-data" class="form-horizontal">
+        {% crispy form %}
+        <div class="form-group">
+            <label for="upload_button" class="col-sm-4 control-label"></label>
+            <div class="col-sm-8">
+                <input type="submit" name="upload" value="Upload" class="btn btn-primary" />
+            </div>
+        </div>
+    </form>
+
+    <div style="color: blue;" class="cleafix col-sm-offset-4">
+        {{msg}}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+*.pyc
+db.sqlite3
+pdf/*
+!pdf/.gitkeep
+media/*
+!media/.gitkeep
