@@ -97,6 +97,7 @@ def split_pdf(f_path, split_key_word):
 def get_email_list_from_excel():
     '''
     This function will read EXCEL FILE and get list of (email_address, name+email_address)
+    Only works for xlsx and xlsm file format.
     '''
 
     f_path = settings.EXCEL_FILE
