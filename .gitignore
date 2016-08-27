@@ -4,3 +4,5 @@ pdf/*
 !pdf/.gitkeep
 media/*
 !media/.gitkeep
+send_email_with_pdf/local.py
+mail_list.xlsm

@@ -16,9 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from frontend.views import send_email, upload_pdf
+from frontend.views import send_email, upload_pdf, send_email_json
 
 urlpatterns = [
     url(r'^$', send_email, name='send_email'),
+    url(r'^send_email_json/$', send_email_json, name='send_email_json'),
     url(r'^upload_pdf/$', upload_pdf, name='upload_pdf'),
 ]

@@ -1,34 +1,103 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
+{% load crispy_forms_tags staticfiles %}
 
 {% block title %}Send Email{% endblock %}
 
 {% block content %}
 <div class="container" style="margin-top: 30px;">
-    <form method="POST" action="." class="form-horizontal">
-        {% crispy form %}
-        <div class="form-group">
-            <label for="upload_button" class="col-sm-3 control-label"></label>
-            <div class="col-sm-7">
-                <input type="submit" name="send" value="Send" class="btn btn-primary" />
-            </div>
-        </div>        
-    </form>
-    
-    <div style="color: blue;" class="cleafix col-sm-offset-3">
-        {{msg}}
+
+    <div id="mail_list" class="col-md-6 table-responsive">
+        {% if excel_content %}
+
+        <table class="table">
+            {% for row in excel_content %} 
+                {% if forloop.counter0 == 0 %} 
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" name="all_toggle" id="all_toggle" />
+                        </th>
+                        {% for cell in row %}
+                            <th>{{cell}}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                {% else %}
+
+                    {% if forloop.counter0 == 1 %}
+                    <tbody>
+                    {% endif %}
+
+                    <tr {% if row.0 not in pdf_dict %}class="no_file"{% endif %}
+                        data-ae_send="{{row.2}}" data-checked="false">
+                        <td>
+                            <input type="checkbox" name="row_toggle" class="row_toggle"
+                                   {% if row.0 not in pdf_dict %} disabled {% endif %}/>
+                        </td>
+                        {% for cell in row %}
+                            <td data-value="{{cell|default_if_none:'null'}}">
+                                {% if forloop.counter0 == 2 %}
+                                    <a href="#" class="toggle_ae_send">{{cell}}</a>
+                                {% else %}
+                                    {{cell}}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+
+                    {% if forloop.counter0 == 1 %}
+                    </tbody>
+                    {% endif %}
+                
+                {% endif %}
+           {% endfor %}
+        </table>
+        
+        {% else %}
+            There is no useful data in excel file.
+        {% endif %}
+        
     </div>
+
+    <div id="content" class="col-md-6">
+        <div class="col-md-12">
+            <label class="col-md-3">Subject*:</label>
+            <input type="text" name="subject" value="{{DEFAULT_EMAIL_SUBJECT}}" placeholder="Email subject" class="col-md-9" id="subject" />
+        </div>
+        <div class="col-md-12" style="margin-top: 10px;">
+            <label class="col-md-3">Content*:</label>
+            <textarea id="content" name="content" class="col-md-9" rows="10">{{DEFAULT_EMAIL_CONTENT}}</textarea>
+        </div>
+
+        <div class="col-md-12" style="margin-top: 10px;">
+            <label class="col-md-3">Sending Type*:</label>
+            <div class="col-md-3">
+                <input type="radio" name="send_type" value="single" /> Single
+            </div>
+            <div class="col-md-3">
+                <input type="radio" name="send_type" value="bundle" /> Bundle
+            </div>
+        </div>
+
+        <div class="col-md-12" style="margin-top: 10px;">
+            <input type="button" name="submit" value="Send Emails" class="btn btn-primary col-md-offset-3" id="submit" />
+            <img src="{% static 'images/loader-bar.gif' %}" class="hidden" id="loader-bar" />
+        </div>
+
+        <div class="col-md-12" style="margin-top: 10px;">
+            <p class="col-md-offset-3 error"></p>
+        </div>
+        
+    </div>
+
 </div>
 {% endblock %}
 
 {% block extra_script %}
 <script type="text/javascript">
-    $('#id_email_list').select2({
-        placeholder: 'Please select email list'
-    });
-    $('#id_file_list').select2({
-        placeholder: 'Please select PDF files'
-    });
-    
+    var csrf_token = '{{csrf_token}}';
+    var send_email_json_url = '{% url 'send_email_json' %}';
+    var pdf_dict = {{pdf_dict|safe}};
 </script>
+<script type="text/javascript" src="{% static 'js/send_email.js' %}"></script>
 {% endblock %}

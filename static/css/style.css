@@ -1,37 +1,19 @@
 body {
     padding-top: 50px;
 }
-#home_container #home_title{
-    padding: 40px 15px;
-    text-align: center;
-}
-#home_container .col-md-6 .col-md-3 {
-    padding: 20px;
-    border: 1px solid #eee;
-    color: #333;
-}
-#home_container .col-md-6 .col-md-3:hover {
-    background: #f1f1f1;
-}
-
-#chart_container .col-md-3 {
-    margin-top: 60px;
-}
-
-#chart_container .col-md-9 p {
-    margin: auto;
-    width: 500px;
-    font-size: 25px;
-    margin-top: 100px;
-    color: #888;
-}
-
-#chart_container #no_data {
-    font-size: 20px;
-    margin: auto;
-    margin-top: 100px;
-}
 
 .errorlist, .error {
     color: red;
+}
+
+
+/* excel table */
+
+#mail_list {
+    border-right: 1px solid #eee;
+}
+
+#mail_list table tr.no_file {
+    display: none;
+    background: #eee;
 }

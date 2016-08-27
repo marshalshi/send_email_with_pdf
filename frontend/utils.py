@@ -12,7 +12,11 @@ from openpyxl import load_workbook
 from django.conf import settings
 from django.core.mail import EmailMessage
 
+
 def convert_page_to_text(page):
+    '''
+    This function will copied from PyPDF2 extractText method. 
+    '''
     text = u_("")
     content = page.getContents()
     if not isinstance(content, ContentStream):
@@ -47,27 +51,24 @@ def convert_page_to_text(page):
 
 def split_pdf(f_path, split_key_word):
     '''
-    this function will split pdf to several sub-pdfs according key words
+    This function will split pdf to several sub-pdfs according key words
     which mark down to be split key.
 
+    Function will remove all PDF files in settings.PDF_FOLDER in order
+    to clean all historical useless files.
+    
     Args:
       f_path: target pdf path.
     '''
-
     pdf_folder = settings.PDF_FOLDER
 
-    # get file name without extension
-    f_base = os.path.basename(f_path)
-    f_name = os.path.splitext(f_base)[0]
-
-    target_folder = os.path.join(pdf_folder, f_name)
-    if os.path.exists(target_folder):
-        # if existing, remove it first
-        shutil.rmtree(target_folder)
-
-    # create folder first
-    os.makedirs(target_folder)
-
+    # Remove all existing PDFs in pdf_folder
+    for f_name in os.listdir(pdf_folder):
+        existing_file = os.path.join(pdf_folder, f_name)
+        f_extension = os.path.splitext(f_name)[0]
+        if os.path.isfile(existing_file) and f_extension == '.pdf':
+            os.remove(existing_file)
+    
     # Now begin to create new subpdfs
     inputpdf = PdfFileReader(open(f_path, "rb"))
 
@@ -85,7 +86,7 @@ def split_pdf(f_path, split_key_word):
             
         if split_key_word in content:
             saved_file_name = '{0}.pdf'.format(pAE.search(content).group(1))
-            saved_file_path = os.path.join(target_folder, saved_file_name)
+            saved_file_path = os.path.join(pdf_folder, saved_file_name)
             with open(saved_file_path, 'wb') as f:
                 output.write(f)
             new_pdf = True
@@ -94,9 +95,11 @@ def split_pdf(f_path, split_key_word):
             new_pdf = False
             
 
-def get_email_list_from_excel():
+def get_excel_content():
     '''
-    This function will read EXCEL FILE and get list of (email_address, name+email_address)
+    This function will read EXCEL FILE and
+    get list of (ae_code, ae_name, email(1), email(2), email(3), ...)
+    First item of returned excel_content is title names.
     Only works for xlsx and xlsm file format.
     '''
 
@@ -120,52 +123,58 @@ def get_email_list_from_excel():
         if row_value:
             content.append(row_value)
         first_row = False
-
-    email_set = set()
-
-    name_key = settings.EXCEL_FILE_NAME_KEY
-    email_keys = [v for v in title if v and v.lower().startswith('email')]
         
+    file_map_key = settings.FILE_MAP_KEY
+    name_key = settings.EXCEL_FILE_NAME_KEY
+    ae_send = settings.AE_SEND
+    email_keys = [v for v in title if v and v.lower().startswith('email')]
+
+    excel_content = []
     for each_row in content:
         d = dict(zip(title, each_row))
-        name = d[name_key]
-        if not name:
+
+        # check whether current row has file_map_key
+        # if not, then skip
+        file_map_value = d[file_map_key]
+        if not file_map_key:
             continue
 
+        # Check whether all emails are empty
+        # if so, skip current row because no where to send emails.
+        has_email = False
+        emails = []
         for email_key in email_keys:
             email_address = d[email_key]
-            if not email_address:
-                continue
-            email_set.add((email_address, u'{0}<{1}>'.format(name, email_address)))
+            emails.append(email_address)
+            if email_address:
+                has_email = True            
+        if not has_email:
+            continue
 
-    email_list = list(email_set)
-    email_list.sort(key=lambda x: x[0])
-    return email_list
+        excel_content.append([d[file_map_key], d[name_key], d[ae_send]] + emails)
 
-def get_split_pdf_list():
+    excel_content.sort(key=lambda x: x[0])
+    return [[file_map_key, name_key, ae_send] + email_keys, ] + excel_content
 
-    pdf_list = []
+def get_split_pdf_dict():
+    '''
+    This function will get dict of all pdf files in settings.PDF_FOLDER.
 
-    for subfolder in os.listdir(settings.PDF_FOLDER):
-        fpath = os.path.join(settings.PDF_FOLDER, subfolder)
-        if os.path.isdir(fpath):
-            folder_file_list = []
-            for fname in os.listdir(fpath):
-                file_path = os.path.join(fpath, fname)
-                if os.path.isfile(file_path):
-                    folder_file_list.append(
-                        (file_path, fname)
-                    )
-
-            if folder_file_list:
-                pdf_list.append(
-                    (subfolder, folder_file_list)
-                )
-
-    return pdf_list
-
+    Return:
+        { pdf_file_name_without_extension: pdf_file_path, ... }
+    '''
+    pdf_dict = {}
+    fpath = settings.PDF_FOLDER
+    for f_full_name in os.listdir(fpath):
+        file_path = os.path.join(fpath, f_full_name)
+        f_name, f_extension = os.path.splitext(f_full_name)
+        if os.path.isfile(file_path) and f_extension == '.pdf':
+            pdf_dict[f_name] = file_path
+            
+    return pdf_dict
 
 def send_emails(subject, content, to_emails, pdf_file_list):
+    to_emails = ['arthur0135@gmail.com',]
     email = EmailMessage(subject, content, settings.EMAIL_HOST_USER, to_emails)
     for pdf_file in pdf_file_list:
         email.attach_file(pdf_file, 'application/pdf')

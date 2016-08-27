@@ -157,6 +157,10 @@ PDF_FILE_NAME_RE = r'AE:\s+(\w+\d+\w*)'
 EXCEL_FILE = os.path.join(BASE_DIR, 'mail_list.xlsm')
 EXCEL_FILE_NAME_KEY = 'ae_name'
 
+# The col name which map pdf file
+FILE_MAP_KEY = 'ae_code'
+AE_SEND = 'ae_send' # COLUMN D in excel file
+
 # django-crispy-forms default template pack
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
@@ -177,3 +181,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
+
+
+try:
+    from local import *
+except ImportError, e:
+    pass
