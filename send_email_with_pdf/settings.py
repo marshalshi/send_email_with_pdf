@@ -172,7 +172,8 @@ Please check attachments for new reports.
 
 Thanks.'''
 
-
+# Email attachments max sending size
+MAX_ATTACH_SIZE = 20000000 # around 20MB
 
 #########################################
 # Private data

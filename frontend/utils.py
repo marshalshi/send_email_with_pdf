@@ -173,9 +173,30 @@ def get_split_pdf_dict():
             
     return pdf_dict
 
-def send_emails(subject, content, to_emails, pdf_file_list):
-    to_emails = ['arthur0135@gmail.com',]
+def _send_emails(subject, content, to_emails, pdf_file_list):
     email = EmailMessage(subject, content, settings.EMAIL_HOST_USER, to_emails)
     for pdf_file in pdf_file_list:
         email.attach_file(pdf_file, 'application/pdf')
     email.send()
+
+def send_emails(subject, content, to_emails, pdf_file_list):
+    
+    # Read each file size and make attach file total size smaller than settings.MAX_ATTACH_SIZE
+    pdfs = []
+    total_file_size = 0 # Unit is bytes
+    for pdf_file in pdf_file_list:
+        file_size = os.path.getsize(pdf_file)
+
+        if file_size >= settings.MAX_ATTACH_SIZE:
+            raise Exception("File {} file size is too large.".format(file_size))
+        
+        total_file_size += file_size
+        if total_file_size >= settings.MAX_ATTACH_SIZE:
+            _send_emails(subject, content, to_emails, pdfs)
+            total_file_size = file_size
+            pdfs = [pdf_file, ]
+        else:
+            pdfs.append(pdf_file)
+
+    if pdfs:
+        _send_emails(subject, content, to_emails, pdfs)

@@ -35,8 +35,10 @@ $(function(){
             content = $('textarea#content').val().trim(),
             send_type = $('input[name=send_type]:checked').val();
 
-        var error_p = $('.error');
+        var error_p = $('.error'),
+            success_p = $('.send_success');
         error_p.text('');
+        success_p.text('');
         
         if (!subject) {
             error_p.text('Please input subject');
@@ -96,7 +98,7 @@ $(function(){
                 'csrfmiddlewaretoken': csrf_token
             },
             success: function(data, textStatus, jqXHR){
-                alert('Emails already sent.');
+                success_p.text('Emails already sent.');
             },
             error: function(){
                 alert('SERVER ERROR!');
