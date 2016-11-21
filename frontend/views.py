@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import json
 from collections import defaultdict
@@ -42,13 +43,12 @@ def send_email_json(request):
             
             email_file_map = defaultdict(list)
             for pdf_file, to_emails in file_email_map.iteritems():
-                for em in to_emails:
-                    if not em:
-                        continue                    
-                    email_file_map[em].append(pdf_file)
+                to_emails = [em for em in to_emails if em]
+                to_emails.sort()
+                email_file_map[tuple(to_emails)].append(pdf_file)
 
-            for email, pdf_file_list in email_file_map.iteritems():
-                send_emails(subject, content, [email,], pdf_file_list)
+            for to_emails, pdf_file_list in email_file_map.iteritems():
+                send_emails(subject, content, to_emails, pdf_file_list)
 
         else:
             # default send mode is single

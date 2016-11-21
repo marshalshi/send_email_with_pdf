@@ -180,7 +180,6 @@ def _send_emails(subject, content, to_emails, pdf_file_list):
     email.send()
 
 def send_emails(subject, content, to_emails, pdf_file_list):
-    
     # Read each file size and make attach file total size smaller than settings.MAX_ATTACH_SIZE
     pdfs = []
     total_file_size = 0 # Unit is bytes
