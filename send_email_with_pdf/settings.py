@@ -149,7 +149,7 @@ MEDIA_URL = '/media/'
 # each sub-folder is all different uploaded pdf
 PDF_FOLDER = os.path.join(BASE_DIR, 'pdf')
 PDF_SPLIT_KEY_WORDS = 'Margin Call Client Info Summary per AE:'
-PDF_FILE_NAME_RE = r'AE:\s+(\w+\d+\w*)'
+PDF_FILE_NAME_RE = r'AE:\s+(\w+\d+\s[A-Z]+|\w+\d+[A-Z]*)'
 
 # The first sheet of this file has mail list
 # For emails, if the col title is starts with `email`

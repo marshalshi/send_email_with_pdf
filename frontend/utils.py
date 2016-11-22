@@ -86,14 +86,14 @@ def split_pdf(f_path, split_key_word):
             
         if split_key_word in content:
             saved_file_name = '{0}.pdf'.format(pAE.search(content).group(1))
+            saved_file_name = saved_file_name.replace(' ', '')
             saved_file_path = os.path.join(pdf_folder, saved_file_name)
             with open(saved_file_path, 'wb') as f:
                 output.write(f)
             new_pdf = True
             count += 1
         else:
-            new_pdf = False
-            
+            new_pdf = False            
 
 def get_excel_content():
     '''
