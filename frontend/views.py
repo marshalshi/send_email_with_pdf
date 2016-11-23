@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django import forms
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseNotFound
+from django.contrib import messages
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
@@ -22,6 +23,17 @@ def send_email(request):
 
     excel_content = get_excel_content()
     pdf_dict = get_split_pdf_dict()
+
+    ae_codes = []
+    for idx, excel_row in enumerate(excel_content):
+        if idx == 0:
+            continue
+        ae_code = excel_row[0]
+        ae_codes.append(ae_code)
+
+    for pdf_name, pdf_path in pdf_dict.iteritems():
+        if pdf_name not in ae_codes:
+            messages.warning(request, 'File {0} not in Excel list.'.format(pdf_name))
     
     return render(request, 'send_email.html', {
         'nav': 'send_email',
